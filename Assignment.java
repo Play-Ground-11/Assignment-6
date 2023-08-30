@@ -14,23 +14,19 @@ class Assignment{
     
     private static String[][] accounts = new String[0][];
 
+    private static final String DASHBOARD = "👷 Welcome to Smart Banking";
+    private static final String CREATE_ACCOUNT = "➕ Open New Account";
+    private static final String DEPOSITS = "➕ Deposit Money";
+    private static final String WITHDRAWALS = "➕ Withdraw Money";
+    private static final String TRANSFER = "➕ Transfer Money";
+    private static final String CHECK_BALANCE = "➕ Check Acoount Balance";
+    private static final String DELETE_ACCOUNT = "❌ Drop Exisiting Account";
+
+    private static String screen = DASHBOARD;
+
  private static final Scanner SCANNER = new Scanner(System.in); 
     public static void main(String[] args) {
-
-        final String DASHBOARD = "👷 Welcome to Smart Banking";
-        final String CREATE_ACCOUNT = "➕ Open New Account";
-        final String DEPOSITS = "➕ Deposit Money";
-        final String WITHDRAWALS = "➕ Withdraw Money";
-        final String TRANSFER = "➕ Transfer Money";
-        final String CHECK_BALANCE = "➕ Check Acoount Balance";
-        final String DELETE_ACCOUNT = "❌ Drop Exisiting Account";
-
-        final String ERROR_MSG = String.format("\t%s%s%s\n", COLOR_RED_BOLD, "%s", RESET);
-        final String SUCCESS_MSG = String.format("\t%s%s%s\n", COLOR_GREEN_BOLD, "%s", RESET);
-
-        String[] accountHolders = new String[0];
-        String screen = DASHBOARD;
-
+        mainLoop:
         do{
             final String APP_TITLE = String.format("%s%s%s",COLOR_BLUE_BOLD,screen,RESET);
 
@@ -58,13 +54,13 @@ class Assignment{
                         case 5: screen = CHECK_BALANCE; break;
                         case 6: screen = DELETE_ACCOUNT; break;
                         case 7: System.out.println(CLEAR); System.exit(0);
-                        default: continue;
+                        default: continue mainLoop;
                     }
                     break;
                     
                 case CREATE_ACCOUNT:
-                    String id = String.format("ID: SDB-%04d",accounts.length+1);
-                    System.out.printf("\t%s\n",id);
+                    String id = String.format("SDB-%05d",accounts.length+1);
+                    System.out.printf("\tID: %s\n",id);
                     String name = nameValidation();
                     double deposit = depositValidation();
 
@@ -81,8 +77,19 @@ class Assignment{
                     accounts = tempAccounts;
 
                     System.out.println();
-                    System.out.printf(SUCCESS_MSG,String.format("%s:%s created successfully\n",id,name));
+                    System.out.printf(SUCCESS_MSG,String.format("\t%s:%s created successfully\n",id,name));
                     System.out.print("\tDo you want to add another account? (Y/N) ");
+                    if (!SCANNER.nextLine().toUpperCase().strip().equals("Y"))
+                    screen = DASHBOARD;
+                    break;
+                case DEPOSITS:
+                    String accountNo = idValidation();
+                    System.out.printf("\tA/C No: %s\n",accountNo);
+
+                    Double currentBalance = Double.valueOf(getCurrentAccountBalance(accountNo));
+                    System.out.printf("\tCurrent Balance: Rs %s\n",currentBalance);
+                   
+                     System.out.print("\tDo you want to continue? (Y/N) ");
                     if (!SCANNER.nextLine().toUpperCase().strip().equals("Y"))
                     screen = DASHBOARD;
                     break;
@@ -136,5 +143,78 @@ class Assignment{
 
         return deposit;
     }
+
+    public static String idValidation(){
+        String id;
+        boolean continueInput = false;
+         String exitId = null;
+        do{
+            System.out.print("\tEnter A/C No: ");
+            id = SCANNER.nextLine().strip();
+
+            if(id.isBlank()){
+                System.out.printf(ERROR_MSG,"\tId cant't be empty\n");
+
+                System.out.print("\tDo you want to try again? (Y/N) ");
+                if(SCANNER.nextLine().equalsIgnoreCase("Y")) continueInput = true;
+                else{
+                    continueInput = false;
+                    screen = DASHBOARD;
+                }
+                
+            }else if(!id.startsWith("SDB-") || id.length() != 9){
+                System.out.printf(ERROR_MSG, "\tInavalid id format\n");
+
+                System.out.print("\tDo you want to try again? (Y/N) ");
+                if(SCANNER.nextLine().equalsIgnoreCase("Y")) continueInput = true;
+                else{
+                    continueInput = false;
+                    screen = DASHBOARD;
+                }
+                
+            }else{
+                String number = id.substring(5);
+                for (int i = 0; i < number.length(); i++) {
+                    if(!Character.isDigit(number.charAt(i))){
+                        System.out.printf(ERROR_MSG,"\tInvalid id format.\n");
+
+                        System.out.print("\tDo you want to try again? (Y/N) ");
+                        if(SCANNER.nextLine().equalsIgnoreCase("Y")) continueInput = true;
+                        else{
+                            continueInput = false;
+                            screen = DASHBOARD;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < accounts.length; i++) {
+                    if(accounts[i][0].equals(id)){
+                        continueInput = false;
+                        exitId = id;
+                    }
+                }
+                if(exitId == null){
+                    System.out.printf(ERROR_MSG,"\tAccount number not found!\n");
+
+                    System.out.print("\tDo you want to try again? (Y/N) ");
+                    if(SCANNER.nextLine().equalsIgnoreCase("Y")) continueInput = true;
+                    else{
+                        continueInput = false;
+                        screen = DASHBOARD;
+                    }
+                }       
+            }
+        }while(continueInput);
+        return exitId;
+    }
     
+    private static String getCurrentAccountBalance(String number){
+        String currentBalance = null;
+         for (int i = 0; i < accounts.length; i++) {
+            if(accounts[i][0].equals(number)){
+                currentBalance = accounts[i][2];
+            }
+         }
+         return currentBalance;
+    }
 }
