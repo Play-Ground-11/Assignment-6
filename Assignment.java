@@ -62,7 +62,7 @@ class Assignment{
                     String id = String.format("SDB-%05d",accounts.length+1);
                     System.out.printf("\tID: %s\n",id);
                     String name = nameValidation();
-                    double deposit = depositValidation();
+                    double deposit = initialDepositValidation();
 
                     String[][] tempAccounts = new String[accounts.length+1][3];
 
@@ -88,60 +88,19 @@ class Assignment{
 
                     Double currentBalance = Double.valueOf(getCurrentAccountBalance(accountNo));
                     System.out.printf("\tCurrent Balance: Rs %s\n",currentBalance);
-                   
-                     System.out.print("\tDo you want to continue? (Y/N) ");
+                    Double newBalance = depositValidation(accountNo);
+                    System.out.printf("\tNew Balance: Rs %s\n",newBalance);
+
+                    System.out.println();
+                    System.out.print("\tDo you want to continue? (Y/N) ");
                     if (!SCANNER.nextLine().toUpperCase().strip().equals("Y"))
                     screen = DASHBOARD;
                     break;
+                case WITHDRAWALS:
+                    
             }
         }while(true);
 
-    }
-
-    private static String nameValidation(){
-        boolean valid;
-        String name;
-
-        do{
-            valid = true;
-            System.out.print("\tEnter Account holder's Name: ");
-            name = SCANNER.nextLine().strip();
-
-            if(name.isBlank()){
-                valid = false;
-                System.out.printf(ERROR_MSG,"\tName can't be empty.\n");
-            }else if(name.length() < 3){
-                valid = false;
-                System.out.printf(ERROR_MSG,"\tInvalid name.\n");
-            }else{
-                for (int i = 0; i < name.length(); i++) {
-                    if(!Character.isLetter(name.charAt(i))){
-                        valid = false;
-                        System.out.printf(ERROR_MSG,"\tInvalid name.\n");
-                    }
-                }
-            }
-        }while(!valid);
-        return name;
-    }
-
-    public static double depositValidation(){
-        boolean valid;
-        double deposit;
-
-        do{
-            valid = true;
-            System.out.print("\tEnter initial deposit: ");
-            deposit = SCANNER.nextDouble();
-            SCANNER.nextLine();
-
-            if(deposit < 5000){
-                valid = false;
-                System.out.printf(ERROR_MSG,"\tInvalid deposit.\n");
-            }
-        }while(!valid);
-
-        return deposit;
     }
 
     public static String idValidation(){
@@ -207,6 +166,54 @@ class Assignment{
         }while(continueInput);
         return exitId;
     }
+
+    private static String nameValidation(){
+        boolean valid;
+        String name;
+
+        do{
+            valid = true;
+            System.out.print("\tEnter Account holder's Name: ");
+            name = SCANNER.nextLine().strip();
+
+            if(name.isBlank()){
+                valid = false;
+                System.out.printf(ERROR_MSG,"\tName can't be empty.\n");
+            }else if(name.length() < 3){
+                valid = false;
+                System.out.printf(ERROR_MSG,"\tInvalid name.\n");
+            }else{
+                for (int i = 0; i < name.length(); i++) {
+                    if(!Character.isLetter(name.charAt(i))){
+                        valid = false;
+                        System.out.printf(ERROR_MSG,"\tInvalid name.\n");
+                    }
+                }
+            }
+        }while(!valid);
+        return name;
+    }
+
+    public static double initialDepositValidation(){
+        boolean valid;
+        double deposit;
+
+        do{
+            valid = true;
+            System.out.print("\tEnter initial deposit: ");
+            deposit = SCANNER.nextDouble();
+            SCANNER.nextLine();
+
+            if(deposit < 5000){
+                valid = false;
+                System.out.printf(ERROR_MSG,"\tInvalid deposit.\n");
+            }
+        }while(!valid);
+
+        return deposit;
+    }
+
+    
     
     private static String getCurrentAccountBalance(String number){
         String currentBalance = null;
@@ -216,5 +223,30 @@ class Assignment{
             }
          }
          return currentBalance;
+    }
+
+    private static Double depositValidation(String number){
+        boolean valid;
+        Double deposit;
+
+        do{
+            valid = true;
+            System.out.print("\tEnter amount to deposit: ");
+            deposit = SCANNER.nextDouble();
+            SCANNER.nextLine();
+
+            if(deposit < 500){
+                valid = false;
+                System.out.printf(ERROR_MSG,"\tInsufficient amount.\n");
+            }
+        }while(!valid);
+
+        for (int i = 0; i < accounts.length; i++) {
+            if(accounts[i][0].equals(number)){
+                deposit += Double.valueOf(accounts[i][2]);
+            }
+        }
+
+        return deposit;
     }
 }
